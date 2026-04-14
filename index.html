@@ -2,41 +2,47 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高畫質截圖 App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>高畫質截圖</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
-        video { width: 100%; border-radius: 10px; background: #000; }
-        button { margin-top: 20px; padding: 15px 30px; font-size: 18px; border-radius: 10px; border: none; background: #007AFF; color: white; }
+        body { font-family: -apple-system, sans-serif; text-align: center; padding: 20px; background: #000; color: white; }
+        video { width: 100%; border-radius: 12px; background: #222; }
+        .instructions { background: #444; padding: 10px; border-radius: 8px; font-size: 14px; margin: 10px 0; color: #FFD700; }
+        .btn-group { display: flex; justify-content: center; gap: 8px; margin: 15px 0; }
+        button { padding: 12px 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .step-btn { background: #555; color: white; }
+        .capture-btn { background: #34C759; color: white; width: 100%; font-size: 18px; }
+        #previewContainer { margin-top: 20px; display: none; }
+        #previewImg { width: 100%; border-radius: 12px; border: 2px solid #34C759; }
         canvas { display: none; }
     </style>
 </head>
 <body>
-    <h2>影片轉照片 (原始畫質)</h2>
-    <input type="file" id="up" accept="video/*"><br><br>
-    <video id="v" controls playsinline></video><br>
-    <button id="go">截取並儲存照片</button>
+    <input type="file" id="up" accept="video/*">
+    <video id="v" controls playsinline></video>
+    <div class="btn-group">
+        <button class="step-btn" onclick="step(-0.033)">⬅️ 上一幀</button>
+        <button class="step-btn" onclick="step(0.033)">下一幀 ➡️</button>
+    </div>
+    <button id="go" class="capture-btn">📸 點我截取畫面</button>
+    <div id="previewContainer">
+        <div class="instructions">💡 儲存到相簿：<strong>長按下方圖片</strong> 並點選 <strong>「儲存到照片」</strong></div>
+        <img id="previewImg">
+    </div>
     <canvas id="c"></canvas>
     <script>
-        const v = document.getElementById('v');
-        const up = document.getElementById('up');
-        const go = document.getElementById('go');
-        const c = document.getElementById('c');
-
-        up.onchange = (e) => { v.src = URL.createObjectURL(e.target.files[0]); };
-
+        const v = document.getElementById('v'), up = document.getElementById('up'), go = document.getElementById('go'), c = document.getElementById('c'), pC = document.getElementById('previewContainer'), pI = document.getElementById('previewImg');
+        up.onchange = (e) => { v.src = URL.createObjectURL(e.target.files[0]); pC.style.display = 'none'; };
+        window.step = (s) => { v.currentTime += s; };
         go.onclick = () => {
+            if (!v.src) return alert("請先選影片");
             const ctx = c.getContext('2d');
-            c.width = v.videoWidth;
-            c.height = v.videoHeight;
+            c.width = v.videoWidth; c.height = v.videoHeight;
             ctx.drawImage(v, 0, 0, c.width, c.height);
-            const img = c.toDataURL('image/jpeg', 1.0);
-            const a = document.createElement('a');
-            a.href = img;
-            a.download = 'photo.jpg';
-            a.click();
-            alert('截圖已產生！請在下載項目中查看並儲存至相簿。');
+            pI.src = c.toDataURL('image/jpeg', 1.0);
+            pC.style.display = 'block';
+            pI.scrollIntoView({ behavior: 'smooth' });
         };
     </script>
 </body>
