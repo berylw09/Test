@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高畫質截圖 App</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
+        video { width: 100%; border-radius: 10px; background: #000; }
+        button { margin-top: 20px; padding: 15px 30px; font-size: 18px; border-radius: 10px; border: none; background: #007AFF; color: white; }
+        canvas { display: none; }
+    </style>
+</head>
+<body>
+    <h2>影片轉照片 (原始畫質)</h2>
+    <input type="file" id="up" accept="video/*"><br><br>
+    <video id="v" controls playsinline></video><br>
+    <button id="go">截取並儲存照片</button>
+    <canvas id="c"></canvas>
+    <script>
+        const v = document.getElementById('v');
+        const up = document.getElementById('up');
+        const go = document.getElementById('go');
+        const c = document.getElementById('c');
+
+        up.onchange = (e) => { v.src = URL.createObjectURL(e.target.files[0]); };
+
+        go.onclick = () => {
+            const ctx = c.getContext('2d');
+            c.width = v.videoWidth;
+            c.height = v.videoHeight;
+            ctx.drawImage(v, 0, 0, c.width, c.height);
+            const img = c.toDataURL('image/jpeg', 1.0);
+            const a = document.createElement('a');
+            a.href = img;
+            a.download = 'photo.jpg';
+            a.click();
+            alert('截圖已產生！請在下載項目中查看並儲存至相簿。');
+        };
+    </script>
+</body>
+</html>
